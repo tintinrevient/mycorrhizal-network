@@ -1,5 +1,10 @@
 # Mycorrhizal Network
 
+## Prerequisite
+
+* Kubernetes 1.18+
+* Helm 3.0+ ([installing helm](https://helm.sh/docs/intro/install/))
+
 ## Environment
 
 1. Install the `Kafka` cluster with the `Neo4j` database with `helm`:
