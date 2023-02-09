@@ -26,3 +26,6 @@ $ helm install data-door-release datadoor/data-door-chart --namespace "data-door
 ```bash
 $ helm uninstall data-door-release --namespace "data-door"
 ```
+
+## References
+* https://en.wikipedia.org/wiki/Mycorrhizal_network
