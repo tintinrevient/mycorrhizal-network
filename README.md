@@ -7,6 +7,11 @@
 
 ## Environment
 
+0. Create a namespace `data-door`:
+```bash
+$ kubectl create namespace data-door
+```
+
 1. Install the `Kafka` cluster with the `Neo4j` database with `helm`:
 ```bash
 $ helm repo add datadoor https://tintinrevient.github.io/helm-chart
