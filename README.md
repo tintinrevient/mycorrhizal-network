@@ -16,3 +16,8 @@ datadoor/data-door-chart	0.1.0        	1.16.0     	A Helm chart for Kubernetes
 
 $ helm install data-door-release datadoor/data-door-chart --namespace "data-door"
 ```
+
+2. When finished, the environment can be cleaned up by the following command:
+```bash
+$ helm uninstall data-door-release --namespace "data-door"
+```
