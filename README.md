@@ -7,7 +7,7 @@
 * Python 3.9
 * Poetry ([installing poetry](https://python-poetry.org/))
 
-## Part 1 (brain): Install the Kafka + Neo4j cluster
+## Part 1 - Brain: Install the Kafka + Neo4j cluster
 
 <ins>Ensure that the server has at least `8GB` memory for Docker</ins>
 
@@ -38,7 +38,7 @@ kubectl port-forward svc/neo4j-web -n data-door 7474:7474
 $ helm uninstall data-door-release --namespace "data-door"
 ```
 
-## Part 2 (tentacle): Install the packet sniffer
+## Part 2 - Tentacle: Install the packet sniffer
 
 1. Install all the dependencies:
 ```bash
