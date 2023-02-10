@@ -1,0 +1,69 @@
+<html>
+
+<head>
+    <title>Mycorrhizal Network</title>
+    <style type="text.css">
+        html, body {
+            font: 16pt arial;
+        }
+
+        #viz {
+            width: 900px;
+            height: 700px;
+            border: 1px solid lightgray;
+            font: 22pt arial;
+        }
+    </style>
+    <script src="https://unpkg.com/neovis.js@2.0.2"></script>
+</head>
+
+<script type="text/javascript">
+    let neoViz;
+    function draw() {
+        const config = {
+            containerId: 'viz',
+
+            neo4j: {
+                serverUrl: "bolt://localhost:7687",
+                serverUser: "neo4j",
+                serverPassword: "password",
+            },
+
+            visConfig: {
+                nodes: {
+                },
+                edges: {
+                    arrows: {
+                        to: { enabled: true }
+                    }
+                },
+            },
+
+            labels: {
+                Host: {
+                    label: "ip",
+                    group: 'city',
+                }
+            },
+
+            relationships: {
+                TO: {
+                    value: "count",
+                }
+            },
+
+            arrows: true,
+
+            initialCypher: "MATCH p=(src:Host)-[r:TO]->(dst:Host) WHERE src.city IS NOT NULL AND dst.city IS NOT NULL RETURN p;"
+        };
+        var neoViz = new NeoVis.default(config);
+
+        neoViz.render();
+    }
+</script>
+
+<body onload="draw()">
+    <div id="viz"></div>
+</body>
+
+</html>
