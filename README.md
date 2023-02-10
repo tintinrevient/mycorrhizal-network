@@ -7,7 +7,9 @@
 * Python 3.9
 * Poetry ([installing poetry](https://python-poetry.org/))
 
-## Install the Kafka + Neo4j cluster on a server with at least 8GB memory for Docker
+## Part 1 (brain): Install the Kafka + Neo4j cluster
+
+<ins>Ensure that the server has at least `8GB` memory for Docker</ins>
 
 0. Create a namespace `data-door`:
 ```bash
@@ -36,7 +38,7 @@ kubectl port-forward svc/neo4j-web -n data-door 7474:7474
 $ helm uninstall data-door-release --namespace "data-door"
 ```
 
-## Install the packet sniffer on any machine to track your traffic
+## Part 2 (tentacle): Install the packet sniffer
 
 1. Install all the dependencies:
 ```bash
