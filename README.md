@@ -52,7 +52,7 @@ poetry run network monitor --broker="[local IP address of your exposed external 
 
 1. Access the Neo4j UI via http://localhost:7474/browser/ and commit the test query `MATCH p=(src)-[:TO]->(dst) RETURN p LIMIT 25;`, the following graph will display:
 <p float="left">
-    <img src="pix/neo4j.png" width="700" />
+    <img src="pix/neo4j.png" width="800" />
 </p>
 
 2. It can be also viewed in neovis via [this html](neovis/network.html) after configuring your neo4j URL:
