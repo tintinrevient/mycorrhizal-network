@@ -4,8 +4,10 @@
 
 * Kubernetes 1.18+
 * Helm 3.0+ ([installing helm](https://helm.sh/docs/intro/install/))
+* Python 3.9
+* Poetry ([installing poetry](https://python-poetry.org/))
 
-## Environment
+## Install the Kafka + Neo4j cluster on a server with at least 8GB memory for Docker
 
 0. Create a namespace `data-door`:
 ```bash
@@ -19,10 +21,44 @@ helm repo update
 helm install data-door-release datadoor/data-door-chart --namespace "data-door"
 ```
 
-2. When finished, the environment can be cleaned up by the following command:
+2. Expose the following four services in the host machine:
+```bash
+kubectl port-forward svc/external-broker -n data-door 9093:9093 --address='0.0.0.0'
+kubectl port-forward svc/control-center -n data-door 9021:9021
+kubectl port-forward svc/neo4j -n data-door 7687:7687
+kubectl port-forward svc/neo4j-web -n data-door 7474:7474
+```
+
+3. Access the control center via http://localhost:9021/ and create [this Neo4j connector](ksql/neo4j_connector.sql) in ksqlDB.
+
+4. When finished, the environment can be nuked by the following command:
 ```bash
 $ helm uninstall data-door-release --namespace "data-door"
 ```
+
+## Install the packet sniffer on any machine to track your traffic
+
+1. Install all the dependencies:
+```bash
+poetry install
+```
+
+2. Run the packet sniffer:
+```bash
+poetry run network monitor --broker="[local IP address of your exposed external Kafka broker]:9093"
+```
+
+## Result
+
+1. Access the Neo4j UI via http://localhost:7474/browser/ and commit the test query `MATCH p=(src)-[:TO]->(dst) RETURN p LIMIT 25;`, the following graph will display:
+<p float="left">
+    <img src="pix/neo4j.png" width="700" />
+</p>
+
+2. It can be also viewed in neovis via [this html](neovis/network.html) after configuring your neo4j URL:
+<p float="left">
+    <img src="pix/neovis.png" width="700" />
+</p>
 
 ## References
 * https://en.wikipedia.org/wiki/Mycorrhizal_network
