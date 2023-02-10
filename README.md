@@ -9,7 +9,7 @@
 
 ## Part 1 🧠 - Install the Kafka + Neo4j cluster
 
-> <ins>Ensure that the server has at least `8GB` memory for Docker</ins>
+<ins>**Ensure that the server has at least `8GB` memory for Docker**</ins>
 
 0. Create a namespace `data-door`:
 ```bash
