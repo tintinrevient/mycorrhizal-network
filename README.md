@@ -22,7 +22,7 @@
 kubectl create namespace data-door
 ```
 
-1. Install the `Kafka` cluster with the `Neo4j` database:
+1. Install the `Kafka` cluster with the `neo4j` database:
 ```bash
 helm repo add datadoor https://tintinrevient.github.io/helm-chart
 helm repo update
@@ -44,7 +44,7 @@ kubectl port-forward svc/neo4j-web -n data-door 7474:7474
 $ helm uninstall data-door-release --namespace "data-door"
 ```
 
-## Part 2 🐙 - Install the packet sniffer
+## Part 2 🐙 - Install the `Kafka` producer with `scapy` 
 
 1. Install all the dependencies:
 ```bash
