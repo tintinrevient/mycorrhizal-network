@@ -13,7 +13,7 @@
 * Python 3.9
 * Poetry ([installing poetry](https://python-poetry.org/))
 
-## Part 1 🧠 - Install the Kafka + Neo4j cluster
+## Part 1 🧠 - Install the `Kafka` cluster with `neo4j`
 
 <ins>**Ensure that the server has at least `8GB` memory for Docker**</ins>
 
