@@ -1,5 +1,11 @@
 # Mycorrhizal Network
 
+## Overview
+
+<p float="left">
+    <img src="pix/data-door-infrastructure.png" width="800" />
+</p>
+
 ## Prerequisite
 
 * Kubernetes 1.18+
