@@ -62,7 +62,7 @@ poetry run network monitor_dns --broker="[local IP address of your exposed exter
 ```
 
 <p float="left">
-    <img src="pix/mycorrhizal-network-deployment-options.png" width="700" />
+    <img src="pix/mycorrhizal-network-deployment-options.png" width="800" />
 </p>
 
 ## Result
