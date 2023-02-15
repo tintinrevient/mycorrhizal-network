@@ -1,3 +1,6 @@
+[tool.black]
+line-length = 300
+
 [tool.poetry]
 name = "mycorrhizal-network"
 version = "0.1.0"

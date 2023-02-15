@@ -37,7 +37,7 @@ kubectl port-forward svc/neo4j -n data-door 7687:7687
 kubectl port-forward svc/neo4j-web -n data-door 7474:7474
 ```
 
-3. Access the control center via http://localhost:9021/ and create [this Neo4j connector](ksql/neo4j_connector.sql) in ksqlDB.
+3. Access the control center via http://localhost:9021/ and create [this Neo4j connector](ksql/neo4j_traffic_sink.sql) in ksqlDB.
 
 4. When finished, the environment can be nuked by the following command:
 ```bash
@@ -51,9 +51,14 @@ $ helm uninstall data-door-release --namespace "data-door"
 poetry install
 ```
 
-2. Run the packet sniffer:
+2. Run the packet sniffer to capture and dissect IP frame:
 ```bash
-poetry run network monitor --broker="[local IP address of your exposed external Kafka broker]:9093"
+poetry run network monitor_ip --broker="[local IP address of your exposed external Kafka broker]:9093"
+```
+
+2. Run the packet sniffer to capture and dissect DNS message:
+```bash
+poetry run network monitor_dns --broker="[local IP address of your exposed external Kafka broker]:9093" --dns="[dns server]"
 ```
 
 ## Result

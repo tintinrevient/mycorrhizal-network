@@ -7,7 +7,7 @@ logger.setLevel(logging.INFO)
 
 
 def get_geo_info(ip: str, database_reader) -> (str, str, str, str):
-    country, city, latitude, longitude = (None, None, None, None)
+    country, city, latitude, longitude = ("None", "None", "None", "None")
 
     try:
         if ip.startswith("192.168"):
