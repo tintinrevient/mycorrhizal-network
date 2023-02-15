@@ -56,7 +56,7 @@ poetry install
 poetry run network monitor_ip --broker="[local IP address of your exposed external Kafka broker]:9093"
 ```
 
-2. Run the packet sniffer to capture and dissect DNS message:
+3. Run the packet sniffer to capture and dissect DNS message:
 ```bash
 poetry run network monitor_dns --broker="[local IP address of your exposed external Kafka broker]:9093" --dns="[dns server]"
 ```
