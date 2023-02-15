@@ -51,7 +51,7 @@ $ helm uninstall data-door-release --namespace "data-door"
 poetry install
 ```
 
-2. Run the packet sniffer to capture and dissect IP frame:
+2. Run the packet sniffer to capture and dissect IP datagram:
 ```bash
 poetry run network monitor_ip --broker="[local IP address of your exposed external Kafka broker]:9093"
 ```
