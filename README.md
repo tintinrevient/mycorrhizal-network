@@ -3,7 +3,7 @@
 ## Overview
 
 <p float="left">
-    <img src="pix/data-door-infrastructure.png" width="800" />
+    <img src="pix/mycorrhizal-network-infrastructure.png" width="800" />
 </p>
 
 ## Prerequisite
