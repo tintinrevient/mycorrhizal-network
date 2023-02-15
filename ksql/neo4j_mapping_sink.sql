@@ -13,5 +13,5 @@ CREATE SINK CONNECTOR `mapping_to_neo4j` WITH(
     "neo4j.server.uri" = 'bolt://neo4j:7687',
     "neo4j.authentication.basic.username" = 'neo4j',
     "neo4j.authentication.basic.password" = 'password',
-    "neo4j.topic.cypher.mapping" = 'MERGE (h:Host{ip: event.ip}) SET h.url = event.url'
+    "neo4j.topic.cypher.mapping" = 'MERGE (h:Host{ip: event.ip}) ON CREATE SET h.url = event.url ON MATCH SET h.url = event.url'
 );
