@@ -61,6 +61,10 @@ poetry run network monitor_ip --broker="[local IP address of your exposed extern
 poetry run network monitor_dns --broker="[local IP address of your exposed external Kafka broker]:9093" --dns="[dns server]"
 ```
 
+<p float="left">
+    <img src="pix/mycorrhizal-network-deployment-options.png" width="700" />
+</p>
+
 ## Result
 
 1. Access the Neo4j UI via http://localhost:7474/browser/ and commit the test query `MATCH p=(src)-[:TO]->(dst) RETURN p LIMIT 25;`, the following graph will display:
