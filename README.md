@@ -67,14 +67,15 @@ poetry run network monitor_dns --broker="[local IP address of your exposed exter
 
 ## Result
 
-1. Access the Neo4j UI via http://localhost:7474/browser/ and commit the test query `MATCH p=(src)-[:TO]->(dst) RETURN p LIMIT 25;`, the following graph will display:
+1. Access the Neo4j UI via http://localhost:7474/browser/ and execute the query `MATCH p=(src)-[:TO]->(dst) RETURN p LIMIT 25;`, the following graph will display:
 <p float="left">
     <img src="pix/neo4j.png" width="800" />
 </p>
 
-2. It can be also viewed in neovis via [this html](neovis/network.html) after configuring your neo4j URL:
+2. The following graphs can be viewed in neovis via [this html](neovis/network-ip.html) and [this html](neovis/network-dns.html) after configuring your neo4j URL:
 <p float="left">
-    <img src="pix/neovis.png" width="700" />
+    <img src="pix/neovis.png" height="300" />
+    <img src="pix/top-nodes.png" height="300" />
 </p>
 
 ## References

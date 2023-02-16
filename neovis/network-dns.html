@@ -18,8 +18,11 @@
 </head>
 
 <script type="text/javascript">
+
     let neoViz;
+
     function draw() {
+
         const config = {
             containerId: 'viz',
 
@@ -31,6 +34,7 @@
 
             visConfig: {
                 nodes: {
+                    shape: "dot",
                 },
                 edges: {
                     arrows: {
@@ -41,8 +45,10 @@
 
             labels: {
                 Host: {
-                    label: "ip",
-                    group: 'city',
+                    label: "url",
+                    group: "city",
+                    value: "count",
+                    title: "city",
                 }
             },
 
@@ -54,11 +60,12 @@
 
             arrows: true,
 
-            initialCypher: "MATCH p=(src:Host)-[r:TO]->(dst:Host) WHERE src.city IS NOT NULL AND dst.city IS NOT NULL RETURN p;"
+            initialCypher: "MATCH (n) WHERE n.city IS NOT NULL AND n.count > 1 RETURN n;"
         };
-        var neoViz = new NeoVis.default(config);
 
+        var neoViz = new NeoVis.default(config);
         neoViz.render();
+        console.log(neoViz);
     }
 </script>
 
