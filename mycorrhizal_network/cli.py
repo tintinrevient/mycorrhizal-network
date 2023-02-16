@@ -23,7 +23,6 @@ def cli() -> None:
 @click.option("--broker", default="127.0.0.1:9093")
 @click.option("--count", default=0)
 def monitor_ip(broker: str, count: int) -> None:
-
     # Initialize the database
     database_reader = geoip2.database.Reader("mycorrhizal_network/data/GeoIP2-City.mmdb")
 
@@ -83,6 +82,8 @@ def monitor_ip(broker: str, count: int) -> None:
 @click.option("--dns", default="192.168.31.1")
 @click.option("--count", default=0)
 def monitor_dns(broker: str, dns: str, count: int) -> None:
+    # Initialize the database
+    database_reader = geoip2.database.Reader("mycorrhizal_network/data/GeoIP2-City.mmdb")
 
     # Initialize the Kafka producer
     kafka_producer = KafkaProducer(
@@ -92,22 +93,34 @@ def monitor_dns(broker: str, dns: str, count: int) -> None:
 
     # Define the callback function as to how to process the DNS packet
     def print_and_produce_pkt_summary(packet) -> None:
-        if DNS in packet:
+        if DNS in packet and UDP in packet:
             answer = sr1(IP(dst="8.8.8.8") / UDP(sport=packet[UDP].sport) / DNS(rd=1, id=packet[DNS].id, qd=DNSQR(qname=packet[DNSQR].qname)), verbose=0)
 
             if DNSRR in answer and not isinstance(answer[DNSRR].rdata, (bytes, bytearray)):
-                # Store in Kafka cluster
+
+                # Step 1: Get the source and destination IP addresses.
+                ip = answer[DNSRR].rdata
+                url = answer[DNSRR].rrname.decode("utf-8")
+
+                # Step 1: Get the geological info, such as city name.
+                country, city, latitude, longitude = get_geo_info(ip, database_reader)
+
+                # Step 2: Store in Kafka cluster
                 # Serve on_delivery callbacks from previous calls to produce()
                 try:
                     kafka_producer.send(
                         "mapping",
                         {
-                            "ip": answer[DNSRR].rdata,
-                            "url": answer[DNSRR].rrname.decode("utf-8"),
+                            "ip": ip,
+                            "url": url,
+                            "country": country,
+                            "city": city,
+                            "latitude": latitude,
+                            "longitude": longitude,
                         },
                     )
 
-                    print(answer[DNSRR].rdata, "->", answer[DNSRR].rrname.decode("utf-8"))
+                    print(ip, "->", url)
 
                 except KeyboardInterrupt:
                     return
@@ -118,6 +131,7 @@ def monitor_dns(broker: str, dns: str, count: int) -> None:
     sniff(filter=f"ip dst {dns}", prn=print_and_produce_pkt_summary, store=0, count=count)
 
     kafka_producer.flush()
+    database_reader.close()
 
 
 if __name__ == "__main__":
