@@ -74,8 +74,8 @@ poetry run network monitor_dns --broker="[local IP address of your exposed exter
 
 2. The following graphs can be viewed in neovis via [this html](neovis/network-ip.html) and [this html](neovis/network-dns.html) after configuring your neo4j URL:
 <p float="left">
-    <img src="pix/neovis.png" height="300" />
-    <img src="pix/top-nodes.png" height="300" />
+    <img src="pix/neovis.png" width="300" />
+    <img src="pix/top-nodes.png" width="500" />
 </p>
 
 ## References
