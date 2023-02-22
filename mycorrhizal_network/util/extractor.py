@@ -7,6 +7,7 @@ logger.setLevel(logging.INFO)
 
 
 def get_geo_info(ip: str, database_reader) -> (str, str, str, str):
+    # Neo4j does not store null values
     country, city, latitude, longitude = ("None", "None", "None", "None")
 
     try:

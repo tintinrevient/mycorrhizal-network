@@ -60,7 +60,7 @@
 
             arrows: true,
 
-            initialCypher: "MATCH (n) WHERE n.city IS NOT NULL AND n.count > 1 RETURN n;"
+            initialCypher: "MATCH (n) WHERE NOT n.ip STARTS WITH '192.168' AND n.count > 1 AND n.url IS NOT NULL RETURN DISTINCT n;"
         };
 
         var neoViz = new NeoVis.default(config);

@@ -93,8 +93,8 @@ def monitor_dns(broker: str, dns: str, count: int) -> None:
 
     # Define the callback function as to how to process the DNS packet
     def print_and_produce_pkt_summary(packet) -> None:
-        if DNS in packet and UDP in packet:
-            answer = sr1(IP(dst="8.8.8.8") / UDP(sport=packet[UDP].sport) / DNS(rd=1, id=packet[DNS].id, qd=DNSQR(qname=packet[DNSQR].qname)), verbose=0)
+        if UDP in packet and DNS in packet:
+            answer = sr1(IP(src="192.168.31.52") / UDP(sport=packet[UDP].sport) / DNS(rd=1, id=packet[DNS].id, qd=DNSQR(qname=packet[DNSQR].qname)), verbose=0)
 
             if DNSRR in answer and not isinstance(answer[DNSRR].rdata, (bytes, bytearray)):
 
@@ -126,6 +126,9 @@ def monitor_dns(broker: str, dns: str, count: int) -> None:
                     return
                 except ValueError:
                     print("Invalid input, discarding record...")
+                    return
+                except Exception as ex:
+                    print(ex)
                     return
 
     sniff(filter=f"ip dst {dns}", prn=print_and_produce_pkt_summary, store=0, count=count)
