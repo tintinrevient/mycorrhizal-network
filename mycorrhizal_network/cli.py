@@ -1,16 +1,17 @@
 import json
 import logging
 
+from scapy.all import *
 import geoip2.database
 from kafka import KafkaProducer
 
-logger = logging.getLogger("scapy")
-logger.setLevel(logging.INFO)
-
 import click
-from scapy.all import *
 
 from .util.extractor import get_geo_info
+
+logging.basicConfig(level=logging.INFO, filename="logs/traffic.log", format="%(asctime)s %(message)s")
+logger = logging.getLogger("scapy")
+logger.setLevel(logging.INFO)
 
 
 @click.group()
@@ -36,7 +37,7 @@ def monitor_ip(broker: str, count: int) -> None:
     def print_and_produce_pkt_summary(packet) -> None:
 
         if IP in packet:
-            # Step 1: Get the source and destination IP addresses.
+            # Step 1: Get the source and destination IP addresses, which for sure exist.
             ip_src = packet[IP].src
             ip_dst = packet[IP].dst
 
@@ -63,12 +64,15 @@ def monitor_ip(broker: str, count: int) -> None:
                     },
                 )
 
-                print("{0} ({1}) -> {2} ({3})".format(ip_src, city_src, ip_dst, city_dst))
+                logger.info(f"{ip_src} ({city_src}) -> {ip_dst} ({city_dst})")
 
             except KeyboardInterrupt:
                 return
             except ValueError:
-                print("Invalid input, discarding record...")
+                logger.error("Invalid input, discarding record...")
+                return
+            except Exception as ex:
+                logger.error(ex)
                 return
 
     sniff(filter="ip", prn=print_and_produce_pkt_summary, store=0, count=count)
@@ -93,17 +97,17 @@ def monitor_dns(broker: str, dns: str, count: int) -> None:
 
     # Define the callback function as to how to process the DNS packet
     def print_and_produce_pkt_summary(packet) -> None:
-        if UDP in packet and DNS in packet:
+        if UDP in packet and DNS in packet and DNSQR in packet:
             answer = sr1(IP(src="192.168.31.52") / UDP(sport=packet[UDP].sport) / DNS(rd=1, id=packet[DNS].id, qd=DNSQR(qname=packet[DNSQR].qname)), verbose=0)
 
+            # the example answer[DNSRR] might be as below in the format (rdata, rrname):
+            # b'clients.l.google.com.' <class 'bytes'> clients4.google.com. <class 'bytes'>
+            # 142.250.179.206 <class 'str'> encrypted-tbn0.gstatic.com. <class 'bytes'>
             if DNSRR in answer and not isinstance(answer[DNSRR].rdata, (bytes, bytearray)):
 
                 # Step 1: Get the source and destination IP addresses.
                 ip = answer[DNSRR].rdata
                 url = answer[DNSRR].rrname.decode("utf-8")
-
-                # Step 1: Get the geological info, such as city name.
-                country, city, latitude, longitude = get_geo_info(ip, database_reader)
 
                 # Step 2: Store in Kafka cluster
                 # Serve on_delivery callbacks from previous calls to produce()
@@ -113,22 +117,18 @@ def monitor_dns(broker: str, dns: str, count: int) -> None:
                         {
                             "ip": ip,
                             "url": url,
-                            "country": country,
-                            "city": city,
-                            "latitude": latitude,
-                            "longitude": longitude,
                         },
                     )
 
-                    print(ip, "->", url)
+                    logger.info(f"{ip} -> {url}")
 
                 except KeyboardInterrupt:
                     return
                 except ValueError:
-                    print("Invalid input, discarding record...")
+                    logger.error("Invalid input, discarding record...")
                     return
                 except Exception as ex:
-                    print(ex)
+                    logger.error(ex)
                     return
 
     sniff(filter=f"ip dst {dns}", prn=print_and_produce_pkt_summary, store=0, count=count)

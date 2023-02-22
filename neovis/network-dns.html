@@ -44,23 +44,23 @@
             },
 
             labels: {
-                Host: {
+                DNS: {
                     label: "url",
-                    group: "city",
+                    title: "ip",
                     value: "count",
-                    title: "city",
+                    group: "url",
                 }
             },
 
             relationships: {
-                TO: {
+                HAS_DNS: {
                     value: "count",
                 }
             },
 
             arrows: true,
 
-            initialCypher: "MATCH (n) WHERE NOT n.ip STARTS WITH '192.168' AND n.count > 1 AND n.url IS NOT NULL RETURN DISTINCT n;"
+            initialCypher: "MATCH (n:DNS) WHERE NOT n.ip STARTS WITH '192.168' AND n.url IS NOT NULL RETURN DISTINCT n;"
         };
 
         var neoViz = new NeoVis.default(config);

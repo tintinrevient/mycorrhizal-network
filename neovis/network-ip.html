@@ -49,6 +49,10 @@
                     group: "city",
                     value: "count",
                     title: "city",
+                },
+                DNS: {
+                    label: "url",
+                    title: "ip",
                 }
             },
 
@@ -60,7 +64,7 @@
 
             arrows: true,
 
-            initialCypher: "MATCH p=(src:Host)-[r:TO]->(dst:Host) WHERE src.city IS NOT NULL AND dst.city IS NOT NULL RETURN p;"
+            initialCypher: "MATCH p1=(h1:Host)-[:TO]-(h2:Host) OPTIONAL MATCH p2=(h1)-[:HAS_DNS]->(:DNS) OPTIONAL MATCH p3=(h2)-[:HAS_DNS]->(:DNS) WHERE h1.city IS NOT NULL AND h2.city IS NOT NULL RETURN p1, p2, p3;"
         };
 
         var neoViz = new NeoVis.default(config);

@@ -13,5 +13,5 @@ CREATE SINK CONNECTOR `mapping_to_neo4j` WITH(
     "neo4j.server.uri" = 'bolt://neo4j:7687',
     "neo4j.authentication.basic.username" = 'neo4j',
     "neo4j.authentication.basic.password" = 'password',
-    "neo4j.topic.cypher.mapping" = 'MERGE (h:Host{ip: event.ip}) ON CREATE SET h.count=1, h.url=event.url, h.country=event.country, h.city=event.city, h.latitude=event.latitude, h.longitude=event.longitude ON MATCH SET h.count=h.count+1, h.url=event.url, h.country=event.country, h.city=event.city, h.latitude=event.latitude, h.longitude=event.longitude'
+    "neo4j.topic.cypher.mapping" = 'MERGE (h:DNS{ip: event.ip, url: event.url}) ON CREATE SET h.count=1 ON MATCH SET h.count=h.count+1 MERGE (p:Host{ip: event.ip}) MERGE (p)-[:HAS_DNS]->(h)'
 );
