@@ -78,5 +78,10 @@ poetry run network monitor_dns --broker="[local IP address of your exposed exter
     <img src="pix/top-nodes.png" width="500" />
 </p>
 
+3. The inter-connected hops can be viewed in neovis via [this html](neovis/network-hops.html):
+<p float="left">
+    <img src="pix/traceroute.png" width="800" />
+</p>
+
 ## References
 * https://en.wikipedia.org/wiki/Mycorrhizal_network
