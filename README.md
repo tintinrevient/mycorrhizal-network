@@ -65,6 +65,11 @@ poetry run network monitor_dns --broker="[local IP address of your exposed exter
     <img src="pix/mycorrhizal-network-deployment-options.png" width="800" />
 </p>
 
+4. Run `traceroute` to plot the inter-connected hops:
+```bash
+poetry run network trace_route --broker="[local IP address of your exposed external Kafka broker]:9093"
+```
+
 ## Result
 
 1. Access the Neo4j UI via http://localhost:7474/browser/ and execute the query `MATCH p=(src)-[:TO]->(dst) RETURN p LIMIT 25;`, the following graph will display:

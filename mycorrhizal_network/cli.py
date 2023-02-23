@@ -84,7 +84,7 @@ def monitor_ip(broker: str, count: int) -> None:
 
 @cli.command("monitor_dns")
 @click.option("--broker", default="127.0.0.1:9093")
-@click.option("--src", default="192.168.31.52")
+@click.option("--src", default="192.168.31.53")
 @click.option("--dns", default="192.168.31.1")
 @click.option("--count", default=0)
 def monitor_dns(broker: str, src: str, dns: str, count: int) -> None:
@@ -101,6 +101,9 @@ def monitor_dns(broker: str, src: str, dns: str, count: int) -> None:
     def print_and_produce_pkt_summary(packet) -> None:
         if UDP in packet and DNS in packet and DNSQR in packet:
             answer = sr1(IP(src=src) / UDP(sport=packet[UDP].sport) / DNS(rd=1, id=packet[DNS].id, qd=DNSQR(qname=packet[DNSQR].qname)), verbose=0)
+
+            if answer is None:
+                return
 
             # the example answer[DNSRR] might be as below in the format (rdata, rrname):
             # b'clients.l.google.com.' <class 'bytes'> clients4.google.com. <class 'bytes'>
@@ -149,22 +152,28 @@ def trace_route(broker: str) -> None:
 
     kafka_consumer.subscribe(["traffic"])
 
+    processed_ip_list = []
+
     while True:
-        for message in kafka_consumer:
-            try:
+        try:
+            for message in kafka_consumer:
                 # Step 1: Get the source and destination IP addresses, which for sure exist.
                 ip_src = message.value["ip_src"]
                 ip_dst = message.value["ip_dst"]
                 logger.info(f"Consume message {ip_dst} with topic {message.topic}[{message.partition}] on {message.timestamp} at offset {message.offset}")
 
-                if not ip_dst.startswith("192.168"):
+                # Ignored IPs are 1) local IP; 2) already processed IPs in the current loop
+                if not ip_dst.startswith("192.168") and ip_dst not in processed_ip_list:
                     # Step 2: Trace the route for the non-LAN destination.
                     hop_list = []
                     ans, unans = traceroute(ip_dst)
                     ans.summary(lambda s, r: hop_list.append(r.sprintf("%IP.src%")))
 
+                    # Remove the duplicates while keeping the inserted order
+                    unique_hop_list = list(sorted(set(hop_list), key=hop_list.index))
+
                     prev_hop = ip_src
-                    for hop in hop_list:
+                    for hop in unique_hop_list:
                         # Step 3: Get the geological info, such as city name.
                         country_src, city_src, latitude_src, longitude_src = get_geo_info(prev_hop, database_reader)
                         country_dst, city_dst, latitude_dst, longitude_dst = get_geo_info(hop, database_reader)
@@ -189,7 +198,10 @@ def trace_route(broker: str) -> None:
                         # Step 5: Move forward by one hop.
                         prev_hop = hop
 
-            except KeyboardInterrupt:
+                # Step 6: Add the local IP or already processed IP into processed_ip_list
+                processed_ip_list.append(ip_dst)
+
+        except KeyboardInterrupt:
                 break
 
     kafka_consumer.close()
