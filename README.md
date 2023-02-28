@@ -72,12 +72,7 @@ poetry run network trace_route --broker="[local IP address of your exposed exter
 
 ## Result
 
-1. Access the Neo4j UI via http://localhost:7474/browser/ and execute the query `MATCH p=(src)-[:TO]->(dst) RETURN p LIMIT 25;`, the following graph will display:
-<p float="left">
-    <img src="pix/neo4j.png" width="800" />
-</p>
-
-2. The inter-connected hops can be viewed in neovis via [this html](neovis/network-hops.html):
+The inter-connected hops can be viewed in neovis via [this html](neovis/network-hops.html):
 <p float="left">
     <img src="pix/traceroute_v2.png" width="800" />
 </p>
