@@ -77,13 +77,7 @@ poetry run network trace_route --broker="[local IP address of your exposed exter
     <img src="pix/neo4j.png" width="800" />
 </p>
 
-2. The following graphs can be viewed in neovis via [this html](neovis/network-ip.html) and [this html](neovis/network-dns.html) after configuring your neo4j URL:
-<p float="left">
-    <img src="pix/neovis.png" width="300" />
-    <img src="pix/top-nodes.png" width="500" />
-</p>
-
-3. The inter-connected hops can be viewed in neovis via [this html](neovis/network-hops.html):
+2. The inter-connected hops can be viewed in neovis via [this html](neovis/network-hops.html):
 <p float="left">
     <img src="pix/traceroute_v2.png" width="800" />
 </p>

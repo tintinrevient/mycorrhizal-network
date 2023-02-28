@@ -7,9 +7,15 @@ from kafka import KafkaProducer, KafkaConsumer
 
 import click
 
-from .util.extractor import get_geo_info
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from neo4j import GraphDatabase
 
-logger = logging.getLogger("scapy")
+from .util.ipinfo_crawler import search_for_ipinfo
+from .util.neo4j_api import get_ip_set, update_one_hop
+
+logging.basicConfig(format="%(asctime)s %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+logger = logging.getLogger("default")
 logger.setLevel(logging.INFO)
 
 
@@ -39,7 +45,7 @@ def cli() -> None:
 @click.option("--count", default=0)
 def monitor_ip(broker: str, count: int) -> None:
     # Initialize the database
-    database_reader = geoip2.database.Reader("mycorrhizal_network/data/GeoIP2-City.mmdb")
+    # database_reader = geoip2.database.Reader("mycorrhizal_network/data/GeoIP2-City.mmdb")
 
     # Initialize the Kafka producer
     kafka_producer = KafkaProducer(
@@ -55,31 +61,19 @@ def monitor_ip(broker: str, count: int) -> None:
             ip_src = packet[IP].src
             ip_dst = packet[IP].dst
 
-            # Step 2: Get the geological info, such as city name.
-            country_src, city_src, latitude_src, longitude_src = get_geo_info(ip_src, database_reader)
-            country_dst, city_dst, latitude_dst, longitude_dst = get_geo_info(ip_dst, database_reader)
-
-            # Step 3: Store in Kafka cluster.
+            # Step 2: Store in Kafka cluster.
             # Serve on_delivery callbacks from previous calls to produce()
             produce_to_broker(kafka_producer, "traffic", {
                 "ip_src": str(ip_src),
-                "country_src": country_src,
-                "city_src": city_src,
-                "latitude_src": latitude_src,
-                "longitude_src": longitude_src,
                 "ip_dst": str(ip_dst),
-                "country_dst": country_dst,
-                "city_dst": city_dst,
-                "latitude_dst": latitude_dst,
-                "longitude_dst": longitude_dst,
             })
 
-            logger.info(f"{ip_src} ({city_src}) -> {ip_dst} ({city_dst})")
+            logger.info(f"{ip_src} -> {ip_dst}")
 
     sniff(filter="ip", prn=print_and_produce_pkt_summary, store=0, count=count)
 
     kafka_producer.flush()
-    database_reader.close()
+    # database_reader.close()
 
 
 @cli.command("monitor_dns")
@@ -89,7 +83,7 @@ def monitor_ip(broker: str, count: int) -> None:
 @click.option("--count", default=0)
 def monitor_dns(broker: str, src: str, dns: str, count: int) -> None:
     # Initialize the database
-    database_reader = geoip2.database.Reader("mycorrhizal_network/data/GeoIP2-City.mmdb")
+    # database_reader = geoip2.database.Reader("mycorrhizal_network/data/GeoIP2-City.mmdb")
 
     # Initialize the Kafka producer
     kafka_producer = KafkaProducer(
@@ -126,14 +120,14 @@ def monitor_dns(broker: str, src: str, dns: str, count: int) -> None:
     sniff(filter=f"ip dst {dns}", prn=print_and_produce_pkt_summary, store=0, count=count)
 
     kafka_producer.flush()
-    database_reader.close()
+    # database_reader.close()
 
 
 @cli.command("trace_route")
 @click.option("--broker", default="127.0.0.1:9093")
 def trace_route(broker: str) -> None:
     # Initialize the database
-    database_reader = geoip2.database.Reader("mycorrhizal_network/data/GeoIP2-City.mmdb")
+    # database_reader = geoip2.database.Reader("mycorrhizal_network/data/GeoIP2-City.mmdb")
 
     # Initialize the Kafka producer
     kafka_producer = KafkaProducer(
@@ -174,37 +168,50 @@ def trace_route(broker: str) -> None:
 
                     prev_hop = ip_src
                     for hop in unique_hop_list:
-                        # Step 3: Get the geological info, such as city name.
-                        country_src, city_src, latitude_src, longitude_src = get_geo_info(prev_hop, database_reader)
-                        country_dst, city_dst, latitude_dst, longitude_dst = get_geo_info(hop, database_reader)
-
-                        # Step 4: Store in Kafka cluster.
+                        # Step 3: Store in Kafka cluster.
                         # Serve on_delivery callbacks from previous calls to produce()
                         produce_to_broker(kafka_producer, "hops", {
                             "prev_hop": prev_hop,
-                            "country_src": country_src,
-                            "city_src": city_src,
-                            "latitude_src": latitude_src,
-                            "longitude_src": longitude_src,
                             "curr_hop": hop,
-                            "country_dst": country_dst,
-                            "city_dst": city_dst,
-                            "latitude_dst": latitude_dst,
-                            "longitude_dst": longitude_dst,
                         })
 
                         logger.info(f"{prev_hop} -> {hop}")
 
-                        # Step 5: Move forward by one hop.
+                        # Step 4: Move forward by one hop.
                         prev_hop = hop
 
-                # Step 6: Add the local IP or already processed IP into processed_ip_list
+                # Step 5: Add the local IP or already processed IP into processed_ip_list
                 processed_ip_list.append(ip_dst)
 
         except KeyboardInterrupt:
                 break
 
     kafka_consumer.close()
+    kafka_producer.flush()
+    # database_reader.close()
+
+
+@cli.command("get_ipinfo")
+@click.option("--broker", default="127.0.0.1:9093")
+def get_ipinfo(broker: str) -> None:
+    # Initialize the Neo4j driver
+    neo4j_driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "password"))
+
+    # Initialize the Chrome driver
+    chrome_options = Options()
+    chrome_options.add_argument("--incognito")
+    # chrome_options.add_argument('--headless')
+    chrome_driver = webdriver.Chrome(options=chrome_options)
+
+    # Open the provided link in the chrome using the driver
+    chrome_driver.get("https://www.iplocation.net/ip-lookup")
+
+    # Search for ipinfo
+    # Note: the hourly limit for a BOT is 50 queries per hour
+    ip_set = get_ip_set(neo4j_driver=neo4j_driver)
+    for ip in ip_set:
+        info = search_for_ipinfo(chrome_driver, ip)
+        update_one_hop(neo4j_driver=neo4j_driver, ip=ip, info=info)
 
 
 if __name__ == "__main__":

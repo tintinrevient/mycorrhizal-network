@@ -1,30 +1,37 @@
 import logging
 
 from geoip2.errors import AddressNotFoundError
+from dataclasses import dataclass
 
 logger = logging.getLogger("scapy")
 logger.setLevel(logging.INFO)
 
 
-def get_geo_info(ip: str, database_reader) -> (str, str, str, str):
+@dataclass
+class GeoIP(object):
+    country: str
+    city: str
+    lat: str
+    lon: str
+
+
+def get_geoip_info(ip: str, database_reader) -> GeoIP:
 
     # Neo4j does not store null properties.
     # The example returned result might be:
     # ("country", "city", "lon", "lat"), (None, None, "lon", "lat"), or (None, None, None, None).
     if ip.startswith("192.168"):
-        country, city, latitude, longitude = get_local_geo_info()
+        return get_local_geoip_info()
     else:
-        country, city, latitude, longitude = get_geo_info_from_database(ip, database_reader)
-
-    return country, city, latitude, longitude
+        return get_geoip_info_from_database(ip, database_reader)
 
 
-def get_local_geo_info() -> (str, str, str, str):
+def get_local_geoip_info() -> GeoIP:
 
-    return "Netherlands", "Utrecht", "52.0908", "5.1222"
+    return GeoIP(country="Ferrix", city="Unidentified Ferrix town", lat="0.0", lon="0.0")
 
 
-def get_geo_info_from_database(ip: str, database_reader) -> (str, str, str, str):
+def get_geoip_info_from_database(ip: str, database_reader) -> GeoIP:
 
     try:
         result = database_reader.city(ip)
@@ -33,14 +40,14 @@ def get_geo_info_from_database(ip: str, database_reader) -> (str, str, str, str)
         # The not-found properties are of NoneType.
         country = result.country.name
         city = result.city.name
-        latitude = result.location.latitude
-        longitude = result.location.longitude
+        lat = result.location.latitude
+        lon = result.location.longitude
 
-        return country, city, latitude, longitude
+        return GeoIP(country=country, city=city, lat=lat, lon=lon)
 
     except AddressNotFoundError as ex:
         # If the IP address is not found in the database, then keep its geological info as None.
         logger.debug(ex)
-        return None, None, None, None
+        return None
 
 
