@@ -56,16 +56,7 @@ poetry install
 poetry run network monitor_ip --broker="[local IP address of your exposed external Kafka broker]:9093"
 ```
 
-3. Run the packet sniffer to capture and dissect DNS message:
-```bash
-poetry run network monitor_dns --broker="[local IP address of your exposed external Kafka broker]:9093" --dns="[dns server]"
-```
-
-<p float="left">
-    <img src="pix/mycorrhizal-network-deployment-options.png" width="800" />
-</p>
-
-4. Run `traceroute` to plot the inter-connected hops:
+3. Run `traceroute` to plot the inter-connected hops:
 ```bash
 poetry run network trace_route --broker="[local IP address of your exposed external Kafka broker]:9093"
 ```
