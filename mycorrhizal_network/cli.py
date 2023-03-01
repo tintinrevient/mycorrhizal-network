@@ -11,7 +11,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from neo4j import GraphDatabase
 
-from .util.ipinfo_crawler import search_for_ipinfo
+from .util.ipinfo_crawler import search_for_iplocation, search_for_myipaddress
 from .util.neo4j_api import get_ip_set, update_one_hop
 
 logging.basicConfig(format="%(asctime)s %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
@@ -191,9 +191,10 @@ def trace_route(broker: str) -> None:
     # database_reader.close()
 
 
-@cli.command("get_ipinfo")
+@cli.command("get_ip_info")
 @click.option("--broker", default="127.0.0.1:9093")
-def get_ipinfo(broker: str) -> None:
+@click.option("--url", default="https://whatismyipaddress.com/ip-lookup")
+def get_ip_info(broker: str, url: str) -> None:
     # Initialize the Neo4j driver
     neo4j_driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "password"))
 
@@ -204,14 +205,20 @@ def get_ipinfo(broker: str) -> None:
     chrome_driver = webdriver.Chrome(options=chrome_options)
 
     # Open the provided link in the chrome using the driver
-    chrome_driver.get("https://www.iplocation.net/ip-lookup")
+    chrome_driver.get(url)
 
     # Search for ipinfo
-    # Note: the hourly limit for a BOT is 50 queries per hour
+    # Note: the hourly limit of "https://www.iplocation.net/ip-lookup" for a BOT is 50 queries per hour
     ip_set = get_ip_set(neo4j_driver=neo4j_driver)
+
     for ip in ip_set:
-        info = search_for_ipinfo(chrome_driver, ip)
-        update_one_hop(neo4j_driver=neo4j_driver, ip=ip, info=info)
+
+        if url == "https://whatismyipaddress.com/ip-lookup":
+            info = search_for_myipaddress(chrome_driver, ip)
+        elif url == "https://www.iplocation.net/ip-lookup":
+            info = search_for_iplocation(chrome_driver, ip)
+
+        update_one_hop(neo4j_driver=neo4j_driver, info=info)
 
 
 if __name__ == "__main__":

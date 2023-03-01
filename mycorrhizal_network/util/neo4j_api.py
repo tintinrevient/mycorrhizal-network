@@ -22,32 +22,32 @@ def get_ip_set(neo4j_driver: BoltDriver):
 
         for record in records:
             hop = record.data()
+            ip = hop["n"]["ip"]
 
-            # If "region" exists, it means that the info of the given "ip" has already been checked in "ipinfo.io".
-            if "region" not in hop["n"]:
+            if not ip.startswith("192.168"):
                 ip_list.append(hop["n"]["ip"])
 
     return set(ip_list)
 
 
-def update_one_hop(neo4j_driver: BoltDriver, ip: str, info: IPInfo):
+def update_one_hop(neo4j_driver: BoltDriver, info: IPInfo):
 
     # Overwrite
-    if ip.startswith("192.168"):
-        info = IPInfo(ip=ip, country="Ferrix", city="Unidentified Ferrix town", lat="0.0", lon="0.0")
+    if info.ip.startswith("192.168"):
+        info = IPInfo(ip=info.ip, country="Ferrix", city="Unidentified Ferrix town", lat="0.0", lon="0.0")
 
     with neo4j_driver.session() as session:
         summary = session.execute_write(
             _update_one_hop,
-            ip=ip, country=info.country, region=info.region, city=info.city, isp=info.isp, org=info.org, lat=info.lat,
-            lon=info.lon
+            ip=info.ip, country=info.country, region=info.region, city=info.city, isp=info.isp, lat=info.lat, lon=info.lon,
+            org=info.org, services=info.services, hostname=info.hostname, asn=info.asn, assignment=info.assignment
         )
 
         logger.info(f"Updated {asdict(info)} in the database")
 
 
 def _get_all_hops(tx):
-    result = tx.run("MATCH (n:Hop) WITH DISTINCT (n) RETURN n")
+    result = tx.run("MATCH (n:Hop) WHERE n.ip IS NOT NULL WITH DISTINCT (n) RETURN n")
 
     records = list(result)
     summary = result.consume()
@@ -55,12 +55,12 @@ def _get_all_hops(tx):
     return records, summary
 
 
-def _update_one_hop(tx, ip, country, region, city, isp, org, lat, lon):
+def _update_one_hop(tx, ip, country, region, city, isp, lat, lon, org, services, hostname, asn, assignment):
     result = tx.run("""
-            MATCH (n:Hop {ip: $ip})
-            SET n.country=$country, n.region=$region, n.city=$city, n.isp=$isp, n.org=$org, n.lat=$lat, n.lon=$lon
-            """, ip=ip, country=country, region=region, city=city, isp=isp, org=org, lat=lat, lon=lon
-                    )
+        MATCH (n:Hop {ip: $ip})
+        SET n.country=$country, n.region=$region, n.city=$city, n.isp=$isp, n.lat=$lat, n.lon=$lon, n.org=$org, n.services=$services, n.hostname=$hostname, n.asn=$asn, n.assignment=$assignment
+        """, ip=ip, country=country, region=region, city=city, isp=isp, lat=lat, lon=lon, org=org, services=services, hostname=hostname, asn=asn, assignment=assignment
+    )
 
     summary = result.consume()
 

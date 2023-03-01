@@ -65,7 +65,7 @@ poetry run network trace_route --broker="[local IP address of your exposed exter
 
 The inter-connected hops can be viewed in neovis via [this html](neovis/network-hops.html):
 <p float="left">
-    <img src="pix/traceroute_v2.png" width="800" />
+    <img src="pix/traceroute.png" width="800" />
 </p>
 
 ## References
