@@ -24,7 +24,7 @@ kubectl create namespace data-door
 
 1. Install the `Kafka` cluster with the `neo4j` database:
 ```bash
-helm repo add datadoor https://tintinrevient.github.io/helm-chart
+helm repo add tintinrevient https://tintinrevient.github.io/helm-chart
 helm repo update
 helm install data-door-release datadoor/data-door-chart --namespace "data-door"
 ```
