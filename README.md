@@ -6,7 +6,7 @@
     <img src="pix/mycorrhizal-network-infrastructure.png" width="800" />
 </p>
 
-## Prerequisite
+## Prerequisites
 
 * Kubernetes 1.18+
 * Helm 3.0+ ([installing helm](https://helm.sh/docs/intro/install/))
