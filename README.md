@@ -17,16 +17,11 @@
 
 <ins>**Ensure that the server has at least `8GB` memory for Docker**</ins>
 
-0. Create a namespace `data-door`:
-```bash
-kubectl create namespace data-door
-```
-
 1. Install the `Kafka` cluster with the `neo4j` database:
 ```bash
 helm repo add tintinrevient https://tintinrevient.github.io/helm-chart
 helm repo update
-helm install data-door-release datadoor/data-door-chart --namespace "data-door"
+helm install data-door-release datadoor/data-door-chart --namespace "data-door" --create-namespace
 ```
 
 2. Expose the following four services in the host machine:
