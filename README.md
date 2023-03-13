@@ -24,7 +24,9 @@ helm repo update
 helm install data-door-release tintinrevient/data-door-chart --namespace "data-door" --create-namespace
 ```
 
-If [0/1 nodes are available: 1 node(s) had taints that the pod didn't tolerate](https://github.com/calebhailey/homelab/issues/3), you can untaint the desired node using `kubectl taint nodes --all node-role.kubernetes.io/control-plane-`.
+> :warning: If [0/1 nodes are available: 1 node(s) had taints that the pod didn't tolerate](https://github.com/calebhailey/homelab/issues/3), you can untaint the desired node using `kubectl taint nodes --all node-role.kubernetes.io/control-plane-`. This issue happens if you create a cluster with `kubeadm` and the master node is planned to be deployable as well.
+
+> To install Kubernetes cluster with `kubeadm`, you can reference [this guide](https://github.com/tintinrevient/kubernetes-in-action#create-a-cluster-with-kubeadm).
 
 2. Expose the following four services in the host machine:
 ```bash
