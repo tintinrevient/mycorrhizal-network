@@ -36,7 +36,7 @@ kubectl port-forward svc/neo4j -n data-door 7687:7687
 kubectl port-forward svc/neo4j-web -n data-door 7474:7474
 ```
 
-3. Access the control center via http://localhost:9021/ and create [this traffic neo4j connector](ksql/neo4j_traffic_sink.sql) and [this hop neo4j connector](ksql/neo4j_hops_sink.sql) in ksqlDB, which will be used to sink `traffic` and `hops` topics into `neo4j` database.
+3. Access the control center via http://localhost:9021/ and create [this traffic neo4j connector](ksql/neo4j_traffic_sink.sql) and [this hops neo4j connector](ksql/neo4j_hops_sink.sql) in ksqlDB, which will be used to sink `traffic` and `hops` topics into `neo4j` database.
 
 4. When finished, the environment can be nuked by the following command:
 ```bash
