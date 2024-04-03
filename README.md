@@ -6,6 +6,10 @@
     <img src="pix/mycorrhizal-network-infrastructure.png" width="800" />
 </p>
 
+## On the list
+
+- [ ] Put it on a map - Thanks for the brainstorming from 🐝
+
 ## Prerequisites
 
 * Kubernetes 1.18+
